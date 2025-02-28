@@ -1,0 +1,260 @@
+pair<map<string, int>, map<string, string>>
+Graph::dijkstra(const string &startLabel) const {
+  map<string, int> weights;
+  map<string, string> previous;
+
+  if (contains(startLabel)) {
+    unordered_set<string> vertexSet;
+
+    // TODO: only add startLabel and its neighbors to weights
+    for (auto &p : vertices) {
+      // if p.first is in vertices[startLabel], insert weight
+      // if (vertices.at(startLabel).find(p.first) !=
+      //     vertices.at(startLabel).end()) {
+      //   // assign weight to it in weights
+      //   weights[p.first] = vertices.at(startLabel).at(p.first);
+      // } else {
+      //   // assign INT_MAX to it in weights
+      // }
+      weights[p.first] = INT_MAX;
+    }
+
+    // put startLabel into Weights
+    weights[startLabel] = 0;
+    vertexSet.insert(startLabel);
+    string curVertex = startLabel;
+    previous[startLabel] = startLabel;
+    int n = 0;
+    // not all vertices are in vertexSet,
+    // TODO: replace with while (vertex.size() < weights.size())
+    while (vertexSet.size() < vertices.size()) {
+
+      // attempt to update neighbors...
+      // TODO: add neighbors to weights
+
+      // for each neighbor of curVertex,
+      cout << "[Dijkstra] checking neighbors of " << curVertex << endl;
+      for (auto &neighbor : vertices.at(curVertex)) {
+        // check if they're in the set
+        cout << " [Dijkstra] testing " << curVertex << "'s neighbor "
+             << neighbor.first << endl;
+        cout << " [Dijkstra] n = " << n
+             << ", weight of "
+                "vertices.at(curVertex).atNeigbor.first = "
+             << (vertices.at(curVertex).at(neighbor.first))
+             << ", and weights[neighbor.first] = " << (weights[neighbor.first])
+             << endl;
+
+        if (vertexSet.find(neighbor.first) == vertexSet.end() &&
+            (n + vertices.at(curVertex).at(neighbor.first)) <
+                weights[neighbor.first]) {
+          cout << "   [Dijkstra] updating weight for " << neighbor.first
+               << " to " << n + vertices.at(curVertex).at(neighbor.first)
+               << endl;
+          weights[neighbor.first] =
+              n + vertices.at(curVertex).at(neighbor.first);
+          // if not, attempt to update their value
+          // if n + weight in vertices[curVertex] < weights[neighbor_key],
+          // then update
+        }
+      }
+
+      // get the smallest vertex that is not in the set already
+      cout << " [Dijkstra] finding smallest vertex that's not in the set!"
+           << endl;
+      string smallest;
+      n = INT_MAX;
+      // TODO: only iterate until the smallest vertex not in set!
+      for (auto &v : weights) {
+        if (v.second < n && vertexSet.find(v.first) == vertexSet.end()) {
+          smallest = v.first;
+          n = v.second;
+        }
+      }
+      // set its previous and weight
+      // and set as curVertex
+
+      previous[smallest] = curVertex;
+      weights[smallest] = n; // weights[curVertex] + n
+      curVertex = smallest;
+      cout << " [Dijkstra] curVertex: " << curVertex
+           << ", smallest: " << smallest << ", n = " << n
+           << ", weights[curVertex] = " << weights[curVertex] << endl;
+
+      // add to vertexSet
+      vertexSet.insert(curVertex);
+    }
+  }
+
+  return make_pair(weights, previous);
+}
+
+// NEW Dijkstra
+
+unordered_set<string> vertexSet;
+    string curVertex = startLabel;
+    // previous[startLabel] = startLabel;
+    int prevWeight = 0;
+    do {
+      // add applicable neighbors to weights
+      for (auto &neighbor : vertices.at(curVertex)) {
+        cout << " [Dijkstra] testing " << curVertex << "'s neighbor "
+             << neighbor.first << endl;
+
+        if (vertexSet.find(neighbor.first) == vertexSet.end()) {
+          cout << "  [Dijkstra] weights[neighbor.first] = "
+               << weights[neighbor.first] << "; prevWeight: " << prevWeight;
+
+          weights[neighbor.first] = neighbor.second;
+          cout << ", new weight: " << neighbor.second << endl;
+        }
+      }
+
+      vertexSet.insert(curVertex);
+
+      // get the smallest vertex that is not in the set already
+      cout << " [Dijkstra] finding smallest vertex that's not in the set!"
+           << endl;
+      string smallest;
+      int n = INT_MAX;
+      // TODO: only iterate until the smallest vertex not in set!
+      for (auto &v : weights) {
+        if (v.second < n && vertexSet.find(v.first) == vertexSet.end()) {
+          smallest = v.first;
+          n = v.second;
+        }
+      }
+
+      // set its previous and weight
+      // and set as curVertex
+      cout << "  [Dijkstra] current weights: " << mapToString(weights) << endl;
+      previous[smallest] = curVertex;
+
+      weights[smallest] = n + prevWeight; // weights[curVertex] + n
+      prevWeight = weights[smallest];
+      curVertex = smallest;
+      cout << " [Dijkstra] curVertex: " << curVertex
+           << ", smallest: " << smallest << ", n = " << n
+           << ", weights[curVertex] = " << weights[curVertex] << endl;
+
+      // add to vertexSet
+      vertexSet.insert(curVertex);
+
+    } while (vertexSet.size() < weights.size() + 1);
+
+    // newer dijkstra
+    
+    pair<map<string, int>, map<string, string>>
+Graph::dijkstra(const string &startLabel) const {
+  map<string, int> weights;
+  map<string, string> previous;
+
+  if (contains(startLabel)) {
+    unordered_set<string> vertexSet;
+    string curVertex = startLabel;
+    // previous[startLabel] = startLabel;
+    int prevWeight = 0;
+    do {
+      // add applicable neighbors to weights
+      for (auto &neighbor : vertices.at(curVertex)) {
+        cout << " [Dijkstra] testing " << curVertex << "'s neighbor "
+             << neighbor.first << endl;
+        cout << "  [Dijkstra] current weights: " << mapToString(weights)
+             << endl;
+        if (vertexSet.find(neighbor.first) == vertexSet.end()) {
+
+          if (weights.find(neighbor.first) == weights.end()) {
+            weights[neighbor.first] = neighbor.second;
+          } else {
+            cout << "  [Dijkstra] weights at " << neighbor.first << ": "
+                 << weights.at(neighbor.first)
+                 << ", neighbor.second: " << neighbor.second
+                 << "; prevWeight: " << prevWeight << endl;
+            if (weights[neighbor.first] + prevWeight < neighbor.second) {
+              weights[neighbor.first] += prevWeight;
+            } else {
+              weights[neighbor.first] = neighbor.second;
+            }
+          }
+        }
+
+        cout << "  [Dijkstra] new weights: " << mapToString(weights) << endl;
+      }
+
+      vertexSet.insert(curVertex);
+
+      // get the smallest vertex that is not in the set already
+      cout << " [Dijkstra] finding smallest vertex that's not in the set!"
+           << endl;
+      string smallest;
+      int n = INT_MAX;
+      // TODO: only iterate until the smallest vertex not in set!
+      for (auto &v : weights) {
+        if (v.second < n && vertexSet.find(v.first) == vertexSet.end()) {
+          smallest = v.first;
+          n = v.second;
+        }
+      }
+
+      // set its previous and weight
+      // and set as curVertex
+
+      previous[smallest] = curVertex;
+      // cout << "  " << n + prevWeight << " vs. " << weights[smallest] << endl;
+      // if (n + prevWeight < weights[smallest]) {
+
+      // }
+      weights[smallest] = n + prevWeight; // weights[curVertex] + n
+      prevWeight = weights[smallest];
+      curVertex = smallest;
+      cout << " [Dijkstra] curVertex: " << curVertex
+           << ", smallest: " << smallest << ", n = " << n
+           << ", weights[curVertex] = " << weights[curVertex] << endl;
+
+      // add to vertexSet
+      vertexSet.insert(curVertex);
+      cout << endl;
+    } while (vertexSet.size() < weights.size() + 1);
+  }
+
+  return make_pair(weights, previous);
+}
+
+//
+pair<map<string, int>, map<string, string>>
+Graph::dijkstra(const string &startLabel) const {
+  map<string, int> weights;
+  map<string, string> previous;
+
+  if (contains(startLabel)) {
+    unordered_set<string> vertexSet;
+    string curVertex = startLabel;
+
+    do {
+      // get neighbors of curVertex
+      for (auto &neighbor : vertices.at(curVertex)) {
+        // attempt to update their weights
+
+        // if neighbor.first is in weights,
+        // see if a smaller path can be found
+        if (weights.find(neighbor.first) != weights.end()) {
+
+        } else {
+          // otherwise, set weight as neighbor.second
+          weights.insert(make_pair(neighbor.first, neighbor.second));
+        }
+      }
+
+      // add curVertex to vertexSet
+      vertexSet.insert(curVertex);
+
+      // choose a new curVertex
+      string smallest;
+      int n = INT_MAX;
+      
+
+    } while (vertexSet.size() < vertices.size());
+  }
+
+  return make_pair(weights, previous);
+}
